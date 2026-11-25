@@ -31,12 +31,28 @@
   UI.clear = (el) => { while (el.firstChild) el.removeChild(el.firstChild); };
 
   // ── 무대 맞춤 ──
+  // 세로 화면(폰 세로)이면 720×1280 무대, 아니면 1280×720
+  UI.vert = false;
+  UI.W = 1280; UI.H = 720;
   UI.fit = function () {
-    const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const portrait = vh > vw * 1.05;
+    const changed = portrait !== UI.vert;
+    UI.vert = portrait;
+    const prevH = UI.H;
+    UI.W = portrait ? 720 : 1280;
+    UI.H = portrait ? Math.round(Math.min(1560, Math.max(1180, 720 * vh / vw))) : 720;
+    UI.stage.style.width = UI.W + 'px'; UI.stage.style.height = UI.H + 'px';
+    UI.stage.style.setProperty('--H', UI.H + 'px');
+    UI.stage.style.setProperty('--dy', (UI.H - 1280) + 'px');
+    UI.stage.classList.toggle('portrait', portrait);
+    const s = Math.min(vw / UI.W, vh / UI.H);
     UI.scale = s;
     UI.stage.style.transform = `scale(${s})`;
+    if ((changed || (portrait && prevH !== UI.H)) && UI.onOrient) UI.onOrient();
   };
   window.addEventListener('resize', UI.fit);
+  window.addEventListener('orientationchange', () => setTimeout(UI.fit, 120));
   UI.toStage = function (cx, cy) {
     const r = UI.stage.getBoundingClientRect();
     return { x: (cx - r.left) / UI.scale, y: (cy - r.top) / UI.scale };
@@ -145,8 +161,8 @@
     const p = UI.toStage(cx, cy);
     const w = t.offsetWidth, hh = t.offsetHeight;
     let x = p.x + 18, y = p.y + 18;
-    if (x + w > 1270) x = p.x - w - 14;
-    if (y + hh > 710) y = Math.max(8, p.y - hh - 14);
+    if (x + w > UI.W - 10) x = Math.max(6, p.x - w - 14);
+    if (y + hh > UI.H - 10) y = Math.max(8, p.y - hh - 14);
     t.style.left = Math.max(6, x) + 'px';
     t.style.top = y + 'px';
   }

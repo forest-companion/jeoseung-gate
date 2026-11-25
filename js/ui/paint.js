@@ -67,7 +67,7 @@
       if (L === 2) feature(ctx, P.feature, W, H, base, rng);
     }
     // 소나무 (가까운 곳)
-    if (act === 1 || act === 2) for (let i = 0; i < 3; i++) pine(ctx, rng.next() < 0.5 ? rng.int(20, 200) : rng.int(1080, 1260), H * 0.62 + rng.int(0, 40), 0.8 + rng.next() * 0.5, 'rgba(18,14,11,.85)', rng);
+    if (act === 1 || act === 2) for (let i = 0; i < 3; i++) pine(ctx, rng.next() < 0.5 ? rng.int(20, Math.min(200, W * 0.2)) : rng.int(W - 200, W - 20), H * 0.62 + rng.int(0, 40), 0.8 + rng.next() * 0.5, 'rgba(18,14,11,.85)', rng);
   };
   function pine(ctx, x, y, s, col, rng) {
     ctx.save();
@@ -130,7 +130,7 @@
   // 무대에 깔기: 그림 파일이 있으면 그 위에 덮는다
   UI.sceneLayer = function (act, imgId, cls) {
     const wrap = UI.h('div', { class: 'scene ' + (cls || '') });
-    const cv = UI.h('canvas', { width: 1280, height: 720, style: { position: 'absolute', inset: '0', width: '100%', height: '100%' } });
+    const cv = UI.h('canvas', { width: UI.W, height: UI.H, style: { position: 'absolute', inset: '0', width: '100%', height: '100%' } });
     UI.paintScene(cv, act, UI.run ? UI.run.seed : '');
     wrap.appendChild(cv);
     if (imgId && UI.imgOk[imgId] !== false) {

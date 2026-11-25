@@ -14,6 +14,7 @@
     UI.modalOpen = null;
     UI.clear(UI.stage);
     UI.cur = name;
+    UI.curArgs = args;
     const fn = UI.screens[name];
     if (!fn) throw new Error('no screen ' + name);
     fn(...args);
@@ -270,6 +271,15 @@
     if ((k === 'm' || k === 'M' || k === 'ㅡ') && !UI.$('.deckview:not(.map-overlay)')) { UI.mapOverlay(); return; }
     if (UI.cur === 'combat' && UI.combat && UI.combat.onKey) UI.combat.onKey(e);
   });
+
+  // ── 화면 방향 전환(가로↔세로) ──
+  UI.onOrient = function () {
+    if (!UI.cur) return;
+    if (UI.cur === 'combat' && UI.combat && UI.combat.g) { UI.combat.relayout(); return; }
+    const keep = ['title', 'charSelect', 'daily', 'dex', 'achievements', 'records', 'settings', 'help', 'result'];
+    if (UI.run && UI.cur !== 'result') { UI.flow(); return; }
+    if (keep.includes(UI.cur)) UI.go(UI.cur, ...(UI.curArgs || []));
+  };
 
   // ── 시작 ──
   UI.boot = function () {

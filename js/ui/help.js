@@ -37,7 +37,7 @@
       const sec = (t, ...kids) => h('div', { class: 'lacq', style: { padding: '16px 20px', marginBottom: '14px', borderRadius: '3px' } }, h('div', { class: 'sub-h', style: { marginBottom: '8px' } }, t), ...kids);
       const p = (html) => h('p', { style: { margin: '6px 0', lineHeight: 1.7, fontSize: '15.5px' }, html: UI.kwHtml(html) });
       if (tab === 0) {
-        const wrap = h('div', { style: { display: 'grid', gridTemplateColumns: '370px 1fr', gap: '22px', alignItems: 'start' } });
+        const wrap = h('div', { class: 'help-grid', style: { display: 'grid', gridTemplateColumns: '370px 1fr', gap: '22px', alignItems: 'start' } });
         wrap.appendChild(h('div', { class: 'lacq', style: { padding: '12px', display: 'grid', placeItems: 'center', gap: '6px' } }, wuxingSvg(),
           h('div', { style: { fontSize: '13px', color: 'var(--paper-2)', textAlign: 'center' } }, '금빛 화살표 = 상생(이어짐) · 붉은 점선 = 상극(이김)')));
         wrap.appendChild(h('div', null,

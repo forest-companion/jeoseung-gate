@@ -12,7 +12,7 @@
     UI.audio.setMood('title');
     const scr = h('div', { class: 'screen title-screen fade-in' });
     scr.appendChild(UI.sceneLayer(0, null, 'bg'));
-    const dust = h('canvas', { class: 'moon-dust', width: 1280, height: 720 });
+    const dust = h('canvas', { class: 'moon-dust', width: UI.W, height: UI.H });
     scr.appendChild(dust);
     scr.appendChild(h('div', { class: 'logo' },
       h('div', { class: 'big' }, '저승문'),
@@ -45,14 +45,14 @@
     UI.stage.appendChild(scr);
     // 달빛 먼지
     const ctx = dust.getContext('2d');
-    const motes = Array.from({ length: 46 }, () => ({ x: Math.random() * 1280, y: Math.random() * 720, r: 0.6 + Math.random() * 1.8, s: 0.1 + Math.random() * 0.35, a: Math.random() * Math.PI * 2 }));
+    const motes = Array.from({ length: 46 }, () => ({ x: Math.random() * UI.W, y: Math.random() * UI.H, r: 0.6 + Math.random() * 1.8, s: 0.1 + Math.random() * 0.35, a: Math.random() * Math.PI * 2 }));
     let alive = true;
     const loop = () => {
       if (!alive) return;
-      ctx.clearRect(0, 0, 1280, 720);
+      ctx.clearRect(0, 0, UI.W, UI.H);
       for (const m of motes) {
         m.y -= m.s; m.a += 0.01; m.x += Math.sin(m.a) * 0.3;
-        if (m.y < -5) { m.y = 725; m.x = Math.random() * 1280; }
+        if (m.y < -5) { m.y = UI.H + 5; m.x = Math.random() * UI.W; }
         ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 236, 190, ${0.25 + 0.25 * Math.sin(m.a * 2)})`;
         ctx.fill();
@@ -141,13 +141,13 @@
   UI.buildMap = function (root, readOnly) {
     const run = UI.run;
     const m = run.map;
-    const ROW_H = 80, TOP = 290, BOTTOM = 90;
+    const ROW_H = UI.vert ? Math.max(80, Math.floor((UI.H - 80 - 290 - 90) / 12)) : 80, TOP = 290, BOTTOM = 90;
     const H = TOP + 12 * ROW_H + BOTTOM;
-    const W = 820;
+    const W = UI.vert ? 700 : 820;
     const scroll = h('div', { class: 'scroll' });
-    const paper = h('div', { class: 'paper', style: { height: H + 'px' } });
+    const paper = h('div', { class: 'paper', style: { height: H + 'px', width: W + 'px' } });
     const jitter = (r, c) => { const s = JG.hashSeed(run.seed + ':' + run.act + ':' + r + ':' + c); return [((s[0] % 1000) / 1000 - 0.5) * 34, ((s[1] % 1000) / 1000 - 0.5) * 22]; };
-    const pos = (r, c) => { const j = jitter(r, c); return { x: 80 + c * 110 + j[0], y: H - BOTTOM - r * ROW_H + j[1] }; };
+    const pos = (r, c) => { const j = jitter(r, c); return { x: (UI.vert ? 56 + c * 98 : 80 + c * 110) + j[0], y: H - BOTTOM - r * ROW_H + j[1] }; };
     // 선
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(NS, 'svg');

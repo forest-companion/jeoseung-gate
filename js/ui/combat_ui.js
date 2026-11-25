@@ -79,7 +79,7 @@
     scr.appendChild(C.hint);
     C.arrow = document.createElementNS(NS, 'svg');
     C.arrow.setAttribute('class', 'target-arrow');
-    C.arrow.setAttribute('width', '1280'); C.arrow.setAttribute('height', '720');
+    C.arrow.setAttribute('width', UI.W); C.arrow.setAttribute('height', UI.H);
     scr.appendChild(C.arrow);
     C.fx = h('div', { class: 'fx-layer' });
     scr.appendChild(C.fx);
@@ -108,12 +108,42 @@
     } else begin();
   };
 
+  // ── 배치값: 가로(1280×720) / 세로(720×1280) ──
+  function LAY() {
+    if (UI.vert) {
+      const dy = UI.H - 1280, H = UI.H;
+      return { pl: { left: 14, top: 516 + dy, w: 210, artH: 222 }, eBase: 432 + Math.round(dy * 0.55), ex0: 10, ex1: 710, eSlot: 236, artK: 0.9 + Math.min(0.12, dy / 2000),
+        hand: { cx: 360, maxW: 450, maxW8: 450, y: H - 248, hovY: H - 262, selY: H - 280, sc: 1.22, hsc: 1.5, ssc: 1.42 }, commitY: H - 430, drawFrom: [440, 716 + dy], discardTo: [560, 716 + dy] };
+    }
+    return { pl: { left: 170, top: 150, w: 240, artH: 270 }, eBase: 420, ex0: 560, ex1: 1250, eSlot: 240, artK: 1,
+      hand: { cx: 690, maxW: 660, maxW8: 600, y: 488, hovY: 452, selY: 440 }, commitY: 470, drawFrom: [30, 620], discardTo: [1160, 600] };
+  }
+  C.LAY = LAY;
+  // 화면 방향이 바뀌면 전투 요소를 다시 배치
+  C.relayout = function () {
+    const g = C.g;
+    if (!g || !C.scr) return;
+    const run = UI.run;
+    const act = JG.actInfo(run.act);
+    const oldScene = C.scr.querySelector('.scene');
+    if (oldScene) oldScene.replaceWith(UI.sceneLayer(run.act, act.bg, run.act === 3 ? 'act3' : ''));
+    C.arrow.setAttribute('width', UI.W); C.arrow.setAttribute('height', UI.H);
+    UI.clear(C.field);
+    C.entEls.clear();
+    buildPlayer();
+    layoutEnemies(true);
+    refreshIntents();
+    positionHand();
+    refreshHud();
+  };
+
   // ── 플레이어·적 요소 ──
   function buildPlayer() {
     const g = C.g;
     const ch = D.chars[UI.run.char];
-    const el = h('div', { class: 'ent player', style: { left: '170px', top: '150px', width: '240px' } });
-    const art = h('div', { class: 'art', style: { height: '270px', width: '240px' } });
+    const L = LAY().pl;
+    const el = h('div', { class: 'ent player', style: { left: L.left + 'px', top: L.top + 'px', width: L.w + 'px' } });
+    const art = h('div', { class: 'art', style: { height: L.artH + 'px', width: L.w + 'px' } });
     art.appendChild(h('div', { class: 'shadow' }));
     const p = UI.portrait(ch.img, ch.name[0]);
     while (p.firstChild) art.appendChild(p.firstChild);
@@ -136,12 +166,12 @@
   }
   function enemyArtSize(e) {
     const d = D.enemies[e.id];
-    return d.type === 'boss' ? 300 : d.type === 'elite' ? 260 : 215;
+    return Math.round((d.type === 'boss' ? 300 : d.type === 'elite' ? 260 : 215) * LAY().artK);
   }
   function buildEnemy(e) {
     const ed = D.enemies[e.id];
     const size = enemyArtSize(e);
-    const el = h('div', { class: 'ent enemy', style: { top: (420 - size) + 'px', width: '210px' } });
+    const el = h('div', { class: 'ent enemy', style: { top: (LAY().eBase - size) + 'px', width: '210px' } });
     const art = h('div', { class: 'art', style: { height: size + 'px', width: '210px' } });
     art.appendChild(h('div', { class: 'shadow' }));
     const p = UI.portrait(e.data.img || ed.img, e.name[0]);
@@ -179,8 +209,9 @@
     const vis = g.enemies.filter((e) => (!e.dead && !e.escaped));
     for (const e of vis) if (!C.entEls.has(e.uid)) buildEnemy(e);
     const n = vis.length;
-    const x0 = 560, x1 = 1250;
-    const slot = n ? Math.min(240, (x1 - x0) / n) : 240;
+    const LA = LAY();
+    const x0 = LA.ex0, x1 = LA.ex1;
+    const slot = n ? Math.min(LA.eSlot, (x1 - x0) / n) : LA.eSlot;
     const start = x0 + ((x1 - x0) - slot * n) / 2;
     vis.forEach((e, i) => {
       const rec = C.entEls.get(e.uid);
@@ -344,15 +375,16 @@
   const CARD_W = 158, CARD_H = 222;
   function handLayout(n) {
     const out = [];
-    const maxW = n >= 8 ? 600 : 660;
+    const HL = LAY().hand;
+    const maxW = n >= 8 ? HL.maxW8 : HL.maxW;
     const gap = n > 1 ? Math.min(CARD_W * 0.86, maxW / (n - 1)) : 0;
     const total = gap * (n - 1);
-    const cx = 690;
+    const cx = HL.cx;
     for (let i = 0; i < n; i++) {
       const off = i - (n - 1) / 2;
       const x = cx - total / 2 + gap * i - CARD_W / 2;
       const rot = off * Math.min(3.5, 16 / Math.max(n, 1));
-      const y = 488 + Math.abs(off) * Math.abs(off) * 1.6;
+      const y = HL.y + Math.abs(off) * Math.abs(off) * 1.6;
       out.push({ x, y, rot });
     }
     return out;
@@ -380,8 +412,10 @@
       const sel = C.selected && el.dataset.uid === C.selected.uid;
       const hov = el.classList.contains('hover') && !C.selected;
       let y = L.y, rot = L.rot, sc = 1;
-      if (sel) { y = 440; rot = 0; sc = 1.18; }
-      else if (hov) { y = 452; rot = 0; sc = 1.24; }
+      const HL2 = LAY().hand;
+      if (HL2.sc) sc = HL2.sc;
+      if (sel) { y = HL2.selY; rot = 0; sc = HL2.ssc || 1.18; }
+      else if (hov) { y = HL2.hovY; rot = 0; sc = HL2.hsc || 1.24; }
       el.style.zIndex = sel ? 55 : hov ? 50 : 10 + i;
       el.style.transform = `translate(${L.x}px, ${y}px) rotate(${rot}deg) scale(${sc})`;
     });
@@ -397,7 +431,7 @@
       const el = cardRecFor(c);
       if (isNew && fromPile !== false) {
         el.style.transition = 'none';
-        el.style.transform = `translate(30px, 620px) rotate(-20deg) scale(.35)`;
+        el.style.transform = `translate(${LAY().drawFrom[0]}px, ${LAY().drawFrom[1]}px) rotate(-20deg) scale(.35)`;
         el.style.opacity = '0';
         void el.offsetWidth;
         el.style.transition = '';
@@ -550,7 +584,7 @@
     if (ev.target.closest('.card, .ent.enemy, .btn, .icon-btn, .potion-slot, .pile, .relic, .wheel, .energy')) return;
     if (C.selected && !C.g.needsTarget(C.selected)) {
       const p = UI.toStage(ev.clientX, ev.clientY);
-      if (p.y < 470) { C.commit(); return; }
+      if (p.y < LAY().commitY) { C.commit(); return; }
     }
     if (C.selected) C.cancelSelect();
   }
@@ -606,7 +640,7 @@
         const over = enemyAt(p);
         if (over) { setTarget(over); C.commit(); }
         else { clearArrow(); }
-      } else if (p.y < 440) C.commit();
+      } else if (p.y < LAY().commitY - 30) C.commit();
       else positionHand();
       C.press = null;
       return;
@@ -742,7 +776,7 @@
   const W = (ms) => UI.wait(ms);
   function anchorOf(uid) {
     const rec = C.entEls.get(uid);
-    if (!rec) return { x: 640, y: 300 };
+    if (!rec) return { x: UI.W / 2, y: UI.H * 0.4 };
     const r = UI.rectOf(rec.art);
     return { x: r.cx, y: r.y + r.h * 0.55, top: r.y };
   }
@@ -804,8 +838,8 @@
     clone.classList.remove('hover', 'selected', 'chainable');
     clone.style.transition = 'none';
     clone.style.zIndex = 80;
-    const tx = target ? target.x - CARD_W / 2 : 640 - CARD_W / 2;
-    const ty = target ? target.y - CARD_H / 2 - 30 : 260;
+    const tx = target ? target.x - CARD_W / 2 : UI.W / 2 - CARD_W / 2;
+    const ty = target ? target.y - CARD_H / 2 - 30 : UI.H * 0.36;
     const from = `translate(${r.x}px, ${r.y}px) scale(1)`;
     const mid = `translate(${(r.x + tx) / 2}px, ${Math.min(r.y, ty) - 60}px) scale(1.05) rotate(-4deg)`;
     const to = `translate(${tx}px, ${ty}px) scale(.55) rotate(8deg)`;
@@ -869,7 +903,7 @@
           if (!c) continue;
           const el = cardRecFor(c);
           el.style.transition = 'none';
-          el.style.transform = 'translate(30px, 620px) rotate(-20deg) scale(.35)';
+          el.style.transform = `translate(${LAY().drawFrom[0]}px, ${LAY().drawFrom[1]}px) rotate(-20deg) scale(.35)`;
           el.style.opacity = '0';
         }
         void C.hand.offsetWidth;
@@ -946,7 +980,7 @@
           if (!el) continue;
           C.handEls.delete(uid);
           el.style.transition = 'transform .3s ease, opacity .3s';
-          el.style.transform = 'translate(1160px, 600px) rotate(25deg) scale(.3)';
+          el.style.transform = `translate(${LAY().discardTo[0]}px, ${LAY().discardTo[1]}px) rotate(25deg) scale(.3)`;
           el.style.opacity = '0';
           setTimeout(() => el.remove(), 320);
         }
@@ -1108,7 +1142,7 @@
       const s = steps[i];
       const ok = await new Promise((res) => {
         const dim = h('div', { class: 'coach-dim' });
-        const box = h('div', { class: 'coach', style: { left: s.at[0] + 'px', top: s.at[1] + 'px' } },
+        const box = h('div', { class: 'coach', style: UI.vert ? { left: '195px', top: (i === 0 ? 640 : i < 3 ? 520 : 140) + 'px' } : { left: s.at[0] + 'px', top: s.at[1] + 'px' } },
           h('div', { class: 'step' }, `안내 ${i + 1} / ${steps.length}`), h('div', { html: s.text }),
           h('div', { class: 'row' }, h('button', { class: 'btn small', onclick: () => { dim.remove(); box.remove(); res(false); } }, '그만 보기'), h('button', { class: 'btn small gold', onclick: () => { dim.remove(); box.remove(); res(true); } }, i === steps.length - 1 ? '시작!' : '다음')));
         UI.stage.append(dim, box);

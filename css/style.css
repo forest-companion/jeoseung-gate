@@ -2,6 +2,7 @@
    저승문 — 옻칠 나무 틀 · 놋쇠 장식 · 수묵화 무대 · 괴황지 부적 카드
    무대는 1280×720 고정, 창 크기에 맞춰 통째로 확대/축소한다.
    ───────────────────────────────────────────────────────────── */
+#stage { --H: 720px; --dy: 0px; }
 :root {
   --lacquer: #17110e;
   --lacquer-2: #241a15;
@@ -572,3 +573,80 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--brass-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ═════════ 세로 화면 (폰 세로, 무대 720×1280) ═════════ */
+#stage.portrait .topbar { gap: 10px; padding: 0 8px; }
+#stage.portrait .topbar .who span { display: none; }
+#stage.portrait .tb-where { font-size: 13px; text-align: right; }
+#stage.portrait .potion-slot { width: 32px; height: 32px; }
+/* 전투 */
+#stage.portrait .ground { top: calc(404px + var(--dy) * .55); }
+#stage.portrait .wheel { left: 236px; top: calc(548px + var(--dy)); }
+#stage.portrait .energy { left: 432px; top: calc(590px + var(--dy)); }
+#stage.portrait .pile.draw { left: 440px; top: calc(716px + var(--dy)); }
+#stage.portrait .pile.discard { right: auto; left: 560px; top: calc(716px + var(--dy)); }
+#stage.portrait .pile.exhaust { right: auto; left: 646px; top: calc(740px + var(--dy)); }
+#stage.portrait .endturn { right: 18px; top: calc(552px + var(--dy)); width: 176px; }
+#stage.portrait .hintbtn { right: 18px; top: calc(618px + var(--dy)); width: 176px; }
+#stage.portrait .hand-hint { top: calc(var(--H) - 432px); }
+#stage.portrait .banner { top: calc(520px + var(--dy) * .5); }
+#stage.portrait .bossintro { top: calc(500px + var(--dy) * .5); }
+#stage.portrait .bossintro .ln { padding: 0 24px; }
+#stage.portrait .ent .info { width: 170px; }
+#stage.portrait .hpbar { width: 160px; }
+#stage.portrait .choose-panel { padding-top: 110px; }
+/* 지도 */
+#stage.portrait .mapscreen .scroll { left: 10px; right: 10px; top: 80px; }
+#stage.portrait .mapscreen .rod { left: 0; right: 0; }
+#stage.portrait .mapscreen .side { display: none; }
+/* 타이틀·캐릭터 선택 */
+#stage.portrait .title-screen .logo { left: 60px; top: 150px; }
+#stage.portrait .title-screen .menu { left: 60px; top: calc(520px + var(--dy) * .6); width: 330px; gap: 10px; }
+#stage.portrait .title-screen .menu .btn { min-height: 56px; font-size: 21px; }
+#stage.portrait .title-screen .foot { left: 60px; right: 40px; bottom: 30px; }
+#stage.portrait .charsel .chars { left: 12px; right: 12px; top: 120px; gap: 12px; }
+#stage.portrait .charcard { width: 220px; height: calc(var(--H) - 470px); }
+#stage.portrait .charcard .paint img { height: 330px; bottom: 270px; }
+#stage.portrait .charcard .meta { height: 260px; padding: 14px; }
+#stage.portrait .mnode { width: 54px; height: 54px; margin: -27px 0 0 -27px; font-size: 24px; }
+#stage.portrait .charcard .meta .nm { font-size: 26px; }
+#stage.portrait .charcard .meta p { font-size: 13px; }
+#stage.portrait .charsel .bottom { flex-wrap: wrap; bottom: 40px; gap: 14px; padding: 0 20px; }
+#stage.portrait .ascbox .desc { width: 220px; }
+/* 보상·장터·주막·사건·보물·보스 신물 */
+#stage.portrait .reward-panel { top: 130px; width: 600px; }
+#stage.portrait .reward-item { min-height: 66px; font-size: 19px; }
+#stage.portrait .cardpick { padding-top: 160px; }
+#stage.portrait .cardpick .cards { gap: 16px; margin: 70px 0 70px; }
+#stage.portrait .cardpick .cards .card { transform: scale(1.12); margin: 0 6px; }
+#stage.portrait .cardpick .row { flex-wrap: wrap; justify-content: center; }
+#stage.portrait .shop-wrap { left: 12px; right: 12px; top: 92px; bottom: 16px; grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+#stage.portrait .shop-cards { flex-wrap: wrap; row-gap: 14px; }
+#stage.portrait .shop-row { flex-wrap: wrap; row-gap: 14px; }
+#stage.portrait .shop-side { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 12px; }
+#stage.portrait .shop-side .keeper { width: 90px; height: 90px; font-size: 48px; }
+#stage.portrait .shop-side .say { flex: 1; min-width: 300px; min-height: 0; }
+#stage.portrait .rest-wrap { width: 680px; top: calc(200px + var(--dy) * .4); }
+#stage.portrait .rest-opts { flex-wrap: wrap; }
+#stage.portrait .event-wrap { left: 16px; right: 16px; top: 92px; bottom: 20px; grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 14px; }
+#stage.portrait .event-img { height: 340px; }
+#stage.portrait .event-wrap .sub-h { display: none; }
+#stage.portrait .choice { font-size: 18px; padding: 14px 16px; }
+#stage.portrait .treasure-wrap { top: calc(220px + var(--dy) * .4); width: 640px; }
+#stage.portrait .bossrelic { width: 680px; top: 140px; }
+#stage.portrait .bossrelic .opts { flex-direction: column; align-items: center; gap: 14px; }
+#stage.portrait .bossrelic .opt { width: 520px; flex-direction: row; text-align: left; }
+#stage.portrait .bossrelic .opt .big { font-size: 46px; }
+/* 결과·정보·서장 */
+#stage.portrait .result-box { width: 680px; top: 110px; }
+#stage.portrait .result-box .big { font-size: 80px; }
+#stage.portrait .info-head { flex-wrap: wrap; height: auto; min-height: 74px; padding: 10px 16px; gap: 10px; }
+#stage.portrait .info-head h2 { font-size: 28px; }
+#stage.portrait .info-body { top: 130px; padding: 14px; }
+#stage.portrait .stat-grid { grid-template-columns: repeat(2, 1fr); }
+#stage.portrait .story { width: 660px; grid-template-columns: 1fr; padding: 20px; }
+#stage.portrait .story-art { height: 280px; }
+#stage.portrait .story-art img { height: 270px; }
+#stage.portrait .deckview .dv-head { flex-wrap: wrap; }
+#stage.portrait .help-grid { grid-template-columns: 1fr !important; }
+#stage.portrait #toast { top: 120px; }
